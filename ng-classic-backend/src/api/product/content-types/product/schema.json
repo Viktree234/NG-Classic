@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "info": {
+    "singularName": "product",
+    "pluralName": "products",
+    "displayName": "Product"
+  },
+  "attributes": {
+    "name": { "type": "string", "required": true },
+    "category": {
+      "type": "enumeration",
+      "enum": ["Wigs", "Bundles", "Closures & Frontals", "Hair Care"]
+    },
+    "price": { "type": "decimal", "required": true },
+    "description": { "type": "richtext" },
+    "stock": { "type": "integer", "default": 0 },
+    "images": { "type": "media", "multiple": true }
+  }
+}
