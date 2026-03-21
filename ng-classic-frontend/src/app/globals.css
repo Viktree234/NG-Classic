@@ -1,38 +1,76 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  --font-playfair: 'Playfair Display', serif;
-  --font-montserrat: 'Montserrat', sans-serif;
+@theme {
+  /* Registering your custom fonts as Tailwind utilities */
+  --font-playfair: "Playfair Display", serif;
+  --font-montserrat: "Montserrat", sans-serif;
+
+  /* Optional: Mapping your brand colors for easier use */
+  --color-brand-rose: #be123c;
+  --color-brand-rose-hover: #9f1239;
+  --color-brand-rose-light: #fff1f5;
+  --color-brand-whatsapp: #22c55e;
+  --color-brand-whatsapp-hover: #16a34a;
 }
 
 @layer base {
-  html { scroll-behavior: smooth; }
-  body { font-family: var(--font-montserrat); }
-  h1, h2, h3 { font-family: var(--font-playfair); }
+  html { 
+    scroll-behavior: smooth; 
+  }
+  body { 
+    font-family: var(--font-montserrat); 
+    @apply antialiased text-gray-900;
+  }
+  h1, h2, h3 { 
+    font-family: var(--font-playfair); 
+  }
 }
 
 @layer components {
+  /* Primary Button */
   .btn-primary {
-    @apply bg-rose-700 text-white px-6 py-3 rounded-full font-medium
-           hover:bg-rose-800 active:scale-95 transition-all duration-150;
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium text-sm transition-all duration-150 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed border-none cursor-pointer no-underline;
+    background-color: var(--color-brand-rose);
+    color: #ffffff;
   }
+  .btn-primary:hover { 
+    background-color: var(--color-brand-rose-hover); 
+  }
+
+  /* Outline Button */
   .btn-outline {
-    @apply border border-rose-700 text-rose-700 px-6 py-3 rounded-full font-medium
-           hover:bg-rose-50 active:scale-95 transition-all duration-150;
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium text-sm transition-all duration-150 active:scale-95 no-underline cursor-pointer;
+    background-color: transparent;
+    color: var(--color-brand-rose);
+    border: 1px solid var(--color-brand-rose);
   }
+  .btn-outline:hover { 
+    background-color: var(--color-brand-rose-light); 
+  }
+
+  /* WhatsApp Button */
   .btn-whatsapp {
-    @apply bg-green-500 text-white px-6 py-3 rounded-full font-medium
-           hover:bg-green-600 active:scale-95 transition-all duration-150;
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium text-sm transition-all duration-150 active:scale-95 border-none cursor-pointer no-underline;
+    background-color: var(--color-brand-whatsapp);
+    color: #ffffff;
   }
+  .btn-whatsapp:hover { 
+    background-color: var(--color-brand-whatsapp-hover); 
+  }
+
+  /* Input Fields */
   .input-field {
-    @apply w-full border border-gray-300 rounded-lg px-4 py-3 text-sm
-           focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-rose-400
-           transition-all duration-150;
+    @apply w-full border border-gray-300 rounded-lg px-4 py-3 text-sm outline-none transition-all duration-150 bg-white text-gray-900;
   }
+  .input-field:focus {
+    @apply border-rose-300 ring-3 ring-rose-300/30;
+  }
+
+  /* Card Component */
   .card {
-    @apply bg-white border border-gray-100 rounded-2xl overflow-hidden
-           hover:shadow-md transition-shadow duration-200;
+    @apply bg-white border border-gray-100 rounded-2xl overflow-hidden transition-shadow duration-200;
+  }
+  .card:hover { 
+    @apply shadow-lg;
   }
 }
