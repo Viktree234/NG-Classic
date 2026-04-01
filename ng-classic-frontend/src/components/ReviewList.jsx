@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import useSWR from 'swr';
-import { fetchAPI } from '@/lib/api';
+import { createReview, listReviews } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 
 function Stars({ rating, interactive = false, onRate }) {
@@ -24,10 +24,10 @@ function Stars({ rating, interactive = false, onRate }) {
 export default function ReviewList({ productId }) {
   const { user } = useAuthStore();
   const { data, mutate } = useSWR(
-    `/reviews?filters[product][id][$eq]=${productId}&populate=user&sort=createdAt:desc`,
-    fetchAPI
+    ['reviews', productId],
+    ([, currentProductId]) => listReviews(currentProductId)
   );
-  const reviews = data?.data ?? [];
+  const reviews = data ?? [];
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
@@ -39,18 +39,18 @@ export default function ReviewList({ productId }) {
     if (!comment.trim()) return;
     setSubmitting(true);
     try {
-      await fetchAPI('/reviews', {
-        method: 'POST',
-        body: JSON.stringify({
-          data: { product: productId, user: user.id, rating, comment },
-        }),
+      await createReview({
+        product_id: productId,
+        username: user.username,
+        rating,
+        comment,
       });
       setComment('');
       setRating(5);
       setSubmitted(true);
       mutate();
-    } catch (err) {
-      alert('Failed to submit review.');
+    } catch (error) {
+      alert(error.message || 'Failed to submit review.');
     } finally {
       setSubmitting(false);
     }
@@ -64,16 +64,15 @@ export default function ReviewList({ productId }) {
         <p className="text-gray-400 text-sm mb-8">No reviews yet. Be the first!</p>
       ) : (
         <div className="space-y-5 mb-10">
-          {reviews.map(r => {
-            const a = r.attributes ?? r;
-            const username = a.user?.data?.attributes?.username ?? a.user?.username ?? 'Customer';
+          {reviews.map(review => {
+            const username = review.username ?? 'Customer';
             return (
-              <div key={r.id} className="border border-gray-100 rounded-xl p-5">
+              <div key={review.id} className="border border-gray-100 rounded-xl p-5">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-sm text-gray-800">{username}</span>
-                  <Stars rating={a.rating} />
+                  <Stars rating={review.rating} />
                 </div>
-                <p className="text-gray-600 text-sm leading-relaxed">{a.comment}</p>
+                <p className="text-gray-600 text-sm leading-relaxed">{review.comment}</p>
               </div>
             );
           })}

@@ -1,20 +1,6 @@
 import './globals.css';
-import { Playfair_Display, Montserrat } from 'next/font/google';
-import Navbar from '@/components/Navbar';
+import ClientShell from '@/components/ClientShell';
 import Footer from '@/components/Footer';
-import WhatsAppButton from '@/components/WhatsAppButton';
-
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-playfair',
-  display: 'swap',
-});
-
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  variable: '--font-montserrat',
-  display: 'swap',
-});
 
 export const metadata = {
   title: 'NG Classic — Premium Hair Collection',
@@ -23,12 +9,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${montserrat.variable}`}>
-      <body className="font-sans bg-white text-gray-900 min-h-screen flex flex-col">
-        <Navbar />
+    <html lang="en">
+      <body suppressHydrationWarning className="font-sans bg-white text-gray-900 min-h-screen flex flex-col">
+        <ClientShell />
         <main className="flex-1">{children}</main>
         <Footer />
-        <WhatsAppButton />
       </body>
     </html>
   );

@@ -1,15 +1,14 @@
 'use client';
 import { useState } from 'react';
 import useSWR from 'swr';
-import { fetchAPI } from '@/lib/api';
+import { listProducts } from '@/lib/api';
 import { CATEGORIES } from '@/lib/categories';
 import ProductCard from '@/components/ProductCard';
 
 export default function ShopPage() {
   const [cat, setCat] = useState('');
-  const query = cat ? `?filters[category][$eq]=${cat}&populate=images` : '?populate=images';
-  const { data, isLoading } = useSWR(`/products${query}`, fetchAPI);
-  const products = data?.data ?? [];
+  const { data, isLoading } = useSWR(['products', cat], ([, category]) => listProducts({ category }));
+  const products = data ?? [];
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">

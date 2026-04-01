@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+const CURRENT_YEAR = 2026;
+
 export default function Footer() {
   const wa = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
   return (
@@ -34,7 +36,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="max-w-6xl mx-auto mt-10 pt-6 border-t border-rose-800 text-center text-xs text-rose-400">
-        © {new Date().getFullYear()} NG Classic. All rights reserved.
+        © {CURRENT_YEAR} NG Classic. All rights reserved.
       </div>
     </footer>
   );

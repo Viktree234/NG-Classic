@@ -1,15 +1,26 @@
 'use client';
 import { useState } from 'react';
 import useSWR from 'swr';
-import { fetchAPI, getStrapiMedia } from '@/lib/api';
+import { deleteProduct, getProductImageUrl, listProducts, saveProduct } from '@/lib/api';
 import { CATEGORIES } from '@/lib/categories';
 import Image from 'next/image';
 
-const EMPTY = { name: '', category: 'Wigs', price: '', stock: '', description: '' };
+const EMPTY = { name: '', category: 'Wigs', price: '', stock: '', description: '', imageUrls: '' };
+
+function serializeImageUrls(imageUrls) {
+  return (imageUrls ?? []).join(', ');
+}
+
+function parseImageUrls(value) {
+  return value
+    .split(',')
+    .map(url => url.trim())
+    .filter(Boolean);
+}
 
 export default function AdminProductForm() {
-  const { data, mutate } = useSWR('/products?populate=images&sort=createdAt:desc', fetchAPI);
-  const products = data?.data ?? [];
+  const { data, mutate } = useSWR(['admin-products'], () => listProducts());
+  const products = data ?? [];
 
   const [form, setForm] = useState(EMPTY);
   const [editing, setEditing] = useState(null);
@@ -17,9 +28,15 @@ export default function AdminProductForm() {
   const [success, setSuccess] = useState('');
 
   function startEdit(product) {
-    const a = product.attributes ?? product;
     setEditing(product.id);
-    setForm({ name: a.name, category: a.category, price: a.price, stock: a.stock, description: a.description ?? '' });
+    setForm({
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      stock: product.stock,
+      description: product.description ?? '',
+      imageUrls: serializeImageUrls(product.image_urls),
+    });
   }
 
   function reset() {
@@ -31,19 +48,17 @@ export default function AdminProductForm() {
     e.preventDefault();
     setSaving(true);
     try {
-      const payload = { data: { ...form, price: Number(form.price), stock: Number(form.stock) } };
-      if (editing) {
-        await fetchAPI(`/products/${editing}`, { method: 'PUT', body: JSON.stringify(payload) });
-        setSuccess('Product updated.');
-      } else {
-        await fetchAPI('/products', { method: 'POST', body: JSON.stringify(payload) });
-        setSuccess('Product created.');
-      }
+      await saveProduct({
+        id: editing,
+        ...form,
+        image_urls: parseImageUrls(form.imageUrls),
+      });
+      setSuccess(editing ? 'Product updated.' : 'Product created.');
       reset();
       mutate();
       setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
-      alert('Failed to save product.');
+    } catch (error) {
+      alert(error.message || 'Failed to save product.');
     } finally {
       setSaving(false);
     }
@@ -51,7 +66,7 @@ export default function AdminProductForm() {
 
   async function handleDelete(id) {
     if (!confirm('Delete this product?')) return;
-    await fetchAPI(`/products/${id}`, { method: 'DELETE' });
+    await deleteProduct(id);
     mutate();
   }
 
@@ -76,6 +91,13 @@ export default function AdminProductForm() {
           </div>
           <textarea className="input-field resize-none" rows={3} placeholder="Description"
             value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+          <textarea
+            className="input-field resize-none"
+            rows={3}
+            placeholder="Image URLs, separated by commas"
+            value={form.imageUrls}
+            onChange={e => setForm({ ...form, imageUrls: e.target.value })}
+          />
           <div className="flex gap-3">
             <button type="submit" disabled={saving} className="btn-primary">
               {saving ? 'Saving...' : editing ? 'Update Product' : 'Add Product'}
@@ -86,7 +108,7 @@ export default function AdminProductForm() {
           </div>
         </form>
         <p className="text-xs text-gray-400 mt-4">
-          To upload images, go to the Strapi admin panel → Content Manager → Products → edit the product → upload via the Images field.
+          Supabase products use an `image_urls` text array. Paste one or more public image URLs separated by commas.
         </p>
       </div>
 
@@ -95,19 +117,17 @@ export default function AdminProductForm() {
         <h2 className="font-medium text-rose-900 mb-4">All Products ({products.length})</h2>
         <div className="space-y-3">
           {products.map(product => {
-            const a = product.attributes ?? product;
-            const images = a.images?.data ?? [];
-            const imgUrl = images[0] ? getStrapiMedia(images[0].attributes?.url ?? images[0].url) : null;
+            const imgUrl = getProductImageUrl(product.image_urls?.[0]);
             return (
               <div key={product.id} className="flex items-center gap-4 border border-gray-100 rounded-xl p-4">
                 <div className="w-14 h-14 rounded-lg bg-rose-50 overflow-hidden relative flex-shrink-0">
                   {imgUrl
-                    ? <Image src={imgUrl} alt={a.name} fill className="object-cover" />
+                    ? <Image src={imgUrl} alt={product.name} fill className="object-cover" unoptimized />
                     : <div className="w-full h-full bg-rose-100" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-gray-900 truncate">{a.name}</p>
-                  <p className="text-xs text-gray-400">₦{Number(a.price).toLocaleString()} · Stock: {a.stock}</p>
+                  <p className="font-medium text-sm text-gray-900 truncate">{product.name}</p>
+                  <p className="text-xs text-gray-400">₦{Number(product.price).toLocaleString()} · Stock: {product.stock}</p>
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => startEdit(product)}

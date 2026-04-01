@@ -1,17 +1,17 @@
 'use client';
 import Link from 'next/link';
 import useSWR from 'swr';
-import { fetchAPI } from '@/lib/api';
+import { listProducts } from '@/lib/api';
 import ProductCard from '@/components/ProductCard';
 
 export default function HomePage() {
-  const { data } = useSWR('/products?populate=images&pagination[limit]=4&sort=createdAt:desc', fetchAPI);
-  const products = data?.data ?? [];
+  const { data } = useSWR(['products', 'featured'], () => listProducts({ limit: 4 }));
+  const products = data ?? [];
 
   return (
     <>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-rose-50 to-pink-100 py-24 px-6 text-center">
+      <section className="bg-gradient-to-br from-rose-100 via-pink-200 to-pink-300 py-24 px-6 text-center">
         <p className="text-rose-500 text-sm font-medium tracking-widest uppercase mb-3">
           Premium Hair Collection
         </p>

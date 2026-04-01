@@ -1,8 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import useSWR, { mutate } from 'swr';
-import { fetchAPI } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import AdminProductForm from '@/components/AdminProductForm';
 import AdminOrderTable from '@/components/AdminOrderTable';
@@ -11,14 +9,21 @@ const TABS = ['Orders', 'Products'];
 
 export default function AdminPage() {
   const router = useRouter();
-  const { user } = useAuthStore();
+  const { user, ready } = useAuthStore();
   const [tab, setTab] = useState('Orders');
 
   useEffect(() => {
-    if (!user) router.push('/login');
-  }, [user, router]);
+    if (!ready) return;
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (user.role !== 'admin') {
+      router.push('/account');
+    }
+  }, [ready, router, user]);
 
-  if (!user) return null;
+  if (!ready || !user || user.role !== 'admin') return null;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">

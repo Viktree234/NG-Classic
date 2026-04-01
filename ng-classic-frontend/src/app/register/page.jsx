@@ -1,16 +1,23 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { register } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const loginStore = useAuthStore(s => s.login);
+  const register = useAuthStore(s => s.register);
+  const user = useAuthStore(s => s.user);
+  const ready = useAuthStore(s => s.ready);
   const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (ready && user) {
+      router.push('/account');
+    }
+  }, [ready, router, user]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -21,11 +28,10 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      const data = await register(form.username, form.email, form.password);
-      loginStore(data.user, data.jwt);
+      await register(form.username, form.email, form.password);
       router.push('/account');
-    } catch (err) {
-      setError('Registration failed. Email may already be in use.');
+    } catch (error) {
+      setError(error.message || 'Registration failed. Email may already be in use.');
     } finally {
       setLoading(false);
     }

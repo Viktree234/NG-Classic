@@ -1,27 +1,33 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { login } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 
 export default function LoginPage() {
   const router = useRouter();
-  const loginStore = useAuthStore(s => s.login);
+  const login = useAuthStore(s => s.login);
+  const user = useAuthStore(s => s.user);
+  const ready = useAuthStore(s => s.ready);
   const [form, setForm] = useState({ identifier: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (ready && user) {
+      router.push('/account');
+    }
+  }, [ready, router, user]);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const data = await login(form.identifier, form.password);
-      loginStore(data.user, data.jwt);
+      await login(form.identifier, form.password);
       router.push('/account');
-    } catch (err) {
-      setError('Invalid email or password. Please try again.');
+    } catch (error) {
+      setError(error.message || 'Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }

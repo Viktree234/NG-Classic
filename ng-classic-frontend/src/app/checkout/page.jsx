@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
-import { fetchAPI } from '@/lib/api';
+import { createOrder } from '@/lib/api';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -23,20 +23,16 @@ export default function CheckoutPage() {
   }
 
   async function saveOrder(ref) {
-    await fetchAPI('/orders', {
-      method: 'POST',
-      body: JSON.stringify({
-        data: {
-          user: user?.id ?? null,
-          items: items.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
-          total_price: total(),
-          orderStatus: 'Pending',
-          shipping_name: form.name,
-          shipping_phone: form.phone,
-          shipping_address: form.address,
-          payment_ref: ref ?? 'whatsapp',
-        },
-      }),
+    await createOrder({
+      user_id: user?.id ?? null,
+      customer_email: user?.email ?? null,
+      items: items.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
+      total_price: total(),
+      order_status: 'Pending',
+      shipping_name: form.name,
+      shipping_phone: form.phone,
+      shipping_address: form.address,
+      payment_ref: ref ?? 'whatsapp',
     });
   }
 

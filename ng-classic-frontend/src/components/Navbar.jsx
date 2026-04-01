@@ -1,11 +1,18 @@
 'use client';
+import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 
+function subscribe() {
+  return () => {};
+}
+
 export default function Navbar() {
   const count = useCartStore(s => s.count());
   const user = useAuthStore(s => s.user);
+  const ready = useAuthStore(s => s.ready);
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false);
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-rose-100">
@@ -16,13 +23,13 @@ export default function Navbar() {
 
         <div className="hidden md:flex items-center gap-8 text-sm text-gray-600">
           <Link href="/shop" className="hover:text-rose-700 transition-colors">Shop</Link>
-          {user && (
+          {mounted && user?.role === 'admin' && (
             <Link href="/admin" className="hover:text-rose-700 transition-colors">Admin</Link>
           )}
         </div>
 
         <div className="flex items-center gap-4">
-          {user ? (
+          {mounted && ready && user ? (
             <Link href="/account" className="text-sm text-gray-600 hover:text-rose-700 transition-colors">
               Account
             </Link>
@@ -39,7 +46,7 @@ export default function Navbar() {
                 <path d="M16 10a4 4 0 01-8 0"/>
               </svg>
             </div>
-            {count > 0 && (
+            {mounted && count > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-600 text-white text-xs rounded-full flex items-center justify-center font-medium">
                 {count}
               </span>

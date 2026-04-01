@@ -1,24 +1,52 @@
 import { create } from 'zustand';
+import {
+  fetchCurrentUser,
+  restoreAuthSession,
+  signIn,
+  signOut,
+  signUp,
+} from '@/lib/api';
 
-function setCookie(name, value, days) {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = `${name}=${value}; expires=${expires}; path=/`;
-}
-
-function deleteCookie(name) {
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
-}
-
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set, get) => ({
   user: null,
-  token: null,
-  login: (user, token) => {
-    setCookie('jwt', token, 30);
-    set({ user, token });
+  ready: false,
+
+  initialize: async () => {
+    if (get().ready) {
+      return;
+    }
+
+    try {
+      const auth = await restoreAuthSession();
+      set({
+        user: auth?.user ?? null,
+        ready: true,
+      });
+    } catch {
+      set({ user: null, ready: true });
+    }
   },
-  logout: () => {
-    deleteCookie('jwt');
-    set({ user: null, token: null });
+
+  login: async (email, password) => {
+    const auth = await signIn(email, password);
+    set({ user: auth.user, ready: true });
+    return auth.user;
   },
-  setUser: (user) => set({ user }),
+
+  register: async (username, email, password) => {
+    const auth = await signUp(username, email, password);
+    set({ user: auth.user, ready: true });
+    return auth.user;
+  },
+
+  logout: async () => {
+    await signOut();
+    set({ user: null, ready: true });
+  },
+
+  refreshUser: async () => {
+    const auth = await fetchCurrentUser();
+    set({ user: auth?.user ?? null });
+    return auth?.user ?? null;
+  },
 }));

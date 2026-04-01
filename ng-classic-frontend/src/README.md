@@ -14,7 +14,9 @@ Next.js 14 + TailwindCSS frontend for the NG Classic hair store.
    cp .env.local.example .env.local
    ```
    Then edit `.env.local` with your values:
-   - `NEXT_PUBLIC_STRAPI_URL` — your Strapi backend URL
+   - `DATABASE_URL` — your Aiven PostgreSQL connection string
+   - `AUTH_SECRET` — long random string for session signing
+   - `DATABASE_SSL` — set to `true` for Aiven unless you know otherwise
    - `NEXT_PUBLIC_PAYSTACK_KEY` — Paystack public key
    - `NEXT_PUBLIC_WHATSAPP_NUMBER` — WhatsApp number with country code (e.g. `2348012345678`)
 
@@ -38,15 +40,15 @@ Next.js 14 + TailwindCSS frontend for the NG Classic hair store.
 | `/account` | Order history |
 | `/admin` | Admin: manage products + orders |
 
-## Strapi Enum Values
+## Database Values
 
-Use these exact values in Strapi (capitalised, underscores for spaces):
+Use these exact values in PostgreSQL:
 
 **Product category:** `Wigs`, `Bundles`, `Closures_Frontals`, `Hair_Care`
 
-**Order orderStatus:** `Pending`, `Confirmed`, `Delivered`
+**Order order_status:** `Pending`, `Confirmed`, `Delivered`
 
 ## Deploy
 
 - **Frontend:** Push to GitHub → import on [Vercel](https://vercel.com)
-- **Backend:** Push Strapi to GitHub → deploy on [Railway](https://railway.app) with a PostgreSQL addon
+- **Backend:** Run [database/schema.sql](/home/ythug/Desktop/NG-Classic/ng-classic-frontend/database/schema.sql) on Aiven PostgreSQL and deploy the same Next app with its server env vars
