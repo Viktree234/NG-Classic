@@ -14,38 +14,117 @@
 }
 
 @layer base {
+  :root {
+    --page-bg: #fffdfb;
+    --page-bg-secondary: #fff7f9;
+    --surface: #ffffff;
+    --surface-soft: #fff1f5;
+    --surface-soft-strong: #ffe4e6;
+    --surface-overlay: rgba(255, 255, 255, 0.7);
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #9ca3af;
+    --text-heading: #881337;
+    --text-heading-strong: #be123c;
+    --border-subtle: #fce7f3;
+    --border-default: #e5e7eb;
+    --border-strong: #d1d5db;
+    --nav-bg: rgba(255, 255, 255, 0.82);
+    --nav-shadow: 0 16px 50px rgba(190, 24, 93, 0.08);
+    --hero-gradient: linear-gradient(135deg, #ffe4e6 0%, #fbcfe8 48%, #f9a8d4 100%);
+  }
+
+  html[data-theme='dark'] {
+    --page-bg: #090508;
+    --page-bg-secondary: #12070d;
+    --surface: #160b12;
+    --surface-soft: #22101a;
+    --surface-soft-strong: #321424;
+    --surface-overlay: rgba(10, 5, 8, 0.8);
+    --text-primary: #fff3f7;
+    --text-secondary: #ddbcc8;
+    --text-muted: #aa8793;
+    --text-heading: #ffe8f0;
+    --text-heading-strong: #ff5c8a;
+    --border-subtle: #4a1830;
+    --border-default: #68223f;
+    --border-strong: #8a2b54;
+    --nav-bg: rgba(9, 5, 8, 0.72);
+    --nav-shadow: 0 22px 70px rgba(0, 0, 0, 0.56);
+    --hero-gradient: linear-gradient(135deg, #16080f 0%, #4b0f2c 45%, #a01852 100%);
+  }
+
   html { 
     scroll-behavior: smooth; 
   }
+
   body { 
     font-family: var(--font-montserrat); 
-    @apply antialiased text-gray-900;
+    @apply antialiased;
+    color: var(--text-primary);
+    background:
+      radial-gradient(circle at top, color-mix(in srgb, var(--text-heading-strong) 30%, transparent) 0%, transparent 34%),
+      radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--surface-soft-strong) 36%, transparent) 0%, transparent 30%),
+      radial-gradient(circle at 82% 12%, color-mix(in srgb, var(--text-heading-strong) 16%, transparent) 0%, transparent 26%),
+      linear-gradient(180deg, var(--page-bg) 0%, var(--page-bg-secondary) 100%);
   }
+
   h1, h2, h3 { 
     font-family: var(--font-playfair); 
+  }
+
+  a, button {
+    transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
   }
 }
 
 @layer components {
+  .site-nav {
+    background-color: var(--nav-bg);
+    border-color: var(--border-subtle);
+    box-shadow: var(--nav-shadow);
+    backdrop-filter: blur(16px);
+  }
+
+  .theme-switch {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-full border text-sm cursor-pointer;
+    background:
+      radial-gradient(circle at top, color-mix(in srgb, var(--text-heading-strong) 28%, transparent) 0%, transparent 68%),
+      var(--surface-soft);
+    border-color: var(--border-subtle);
+    color: var(--text-heading-strong);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 24px rgba(0, 0, 0, 0.22);
+  }
+  .theme-switch:hover {
+    background-color: var(--surface-soft-strong);
+    transform: translateY(-1px);
+  }
+
+  .hero-gradient {
+    background: var(--hero-gradient);
+  }
+
   /* Primary Button */
   .btn-primary {
     @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium text-sm transition-all duration-150 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed border-none cursor-pointer no-underline;
     background-color: var(--color-brand-rose);
     color: #ffffff;
+    box-shadow: 0 14px 30px color-mix(in srgb, var(--color-brand-rose) 35%, transparent);
   }
   .btn-primary:hover { 
-    background-color: var(--color-brand-rose-hover); 
+    background-color: color-mix(in srgb, var(--color-brand-rose) 82%, white); 
+    box-shadow: 0 18px 38px color-mix(in srgb, var(--color-brand-rose) 45%, transparent);
   }
 
   /* Outline Button */
   .btn-outline {
     @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium text-sm transition-all duration-150 active:scale-95 no-underline cursor-pointer;
     background-color: transparent;
-    color: var(--color-brand-rose);
-    border: 1px solid var(--color-brand-rose);
+    color: var(--text-heading-strong);
+    border: 1px solid color-mix(in srgb, var(--text-heading-strong) 50%, var(--border-default));
   }
   .btn-outline:hover { 
-    background-color: var(--color-brand-rose-light); 
+    background-color: var(--surface-soft); 
   }
 
   /* WhatsApp Button */
@@ -53,14 +132,19 @@
     @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium text-sm transition-all duration-150 active:scale-95 border-none cursor-pointer no-underline;
     background-color: var(--color-brand-whatsapp);
     color: #ffffff;
+    box-shadow: 0 14px 30px rgba(34, 197, 94, 0.28);
   }
   .btn-whatsapp:hover { 
     background-color: var(--color-brand-whatsapp-hover); 
+    box-shadow: 0 18px 38px rgba(34, 197, 94, 0.34);
   }
 
   /* Input Fields */
   .input-field {
-    @apply w-full border border-gray-300 rounded-lg px-4 py-3 text-sm outline-none transition-all duration-150 bg-white text-gray-900;
+    @apply w-full rounded-lg px-4 py-3 text-sm outline-none transition-all duration-150;
+    border: 1px solid var(--border-strong);
+    background-color: var(--surface);
+    color: var(--text-primary);
   }
   .input-field:focus {
     @apply border-rose-300 ring-3 ring-rose-300/30;
@@ -68,9 +152,59 @@
 
   /* Card Component */
   .card {
-    @apply bg-white border border-gray-100 rounded-2xl overflow-hidden transition-shadow duration-200;
+    @apply rounded-2xl overflow-hidden transition-shadow duration-200;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, white 8%) 0%, var(--surface) 100%);
+    border: 1px solid var(--border-subtle);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
   .card:hover { 
-    @apply shadow-lg;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 24px 56px color-mix(in srgb, var(--text-heading-strong) 18%, transparent);
+  }
+}
+
+@layer utilities {
+  html[data-theme='dark'] .bg-white { background-color: var(--surface) !important; }
+  html[data-theme='dark'] .bg-rose-50 { background-color: var(--surface-soft) !important; }
+  html[data-theme='dark'] .bg-rose-100 { background-color: var(--surface-soft-strong) !important; }
+  html[data-theme='dark'] .bg-white\/70 { background-color: var(--surface-overlay) !important; }
+
+  html[data-theme='dark'] .text-gray-900 { color: var(--text-primary) !important; }
+  html[data-theme='dark'] .text-gray-800 { color: var(--text-primary) !important; }
+  html[data-theme='dark'] .text-gray-700 { color: color-mix(in srgb, var(--text-primary) 80%, var(--text-secondary)) !important; }
+  html[data-theme='dark'] .text-gray-600 { color: var(--text-secondary) !important; }
+  html[data-theme='dark'] .text-gray-500 { color: var(--text-secondary) !important; }
+  html[data-theme='dark'] .text-gray-400 { color: var(--text-muted) !important; }
+  html[data-theme='dark'] .text-rose-900 { color: var(--text-heading) !important; }
+  html[data-theme='dark'] .text-rose-800 { color: var(--text-heading) !important; }
+  html[data-theme='dark'] .text-rose-700 { color: var(--text-heading-strong) !important; }
+  html[data-theme='dark'] .text-rose-600 { color: #ff8fb1 !important; }
+  html[data-theme='dark'] .text-rose-500 { color: #ff8fb1 !important; }
+  html[data-theme='dark'] .text-rose-400 { color: #ffb5cb !important; }
+  html[data-theme='dark'] .text-rose-300 { color: #ffc4d6 !important; }
+  html[data-theme='dark'] .text-white { color: #ffffff !important; }
+
+  html[data-theme='dark'] .border-gray-100 { border-color: var(--border-subtle) !important; }
+  html[data-theme='dark'] .border-gray-200 { border-color: var(--border-default) !important; }
+  html[data-theme='dark'] .border-gray-300 { border-color: var(--border-strong) !important; }
+  html[data-theme='dark'] .border-rose-100 { border-color: var(--border-subtle) !important; }
+  html[data-theme='dark'] .border-rose-200 { border-color: var(--border-default) !important; }
+  html[data-theme='dark'] .border-rose-300 { border-color: color-mix(in srgb, var(--text-heading-strong) 52%, var(--border-default)) !important; }
+  html[data-theme='dark'] .border-rose-700 { border-color: var(--text-heading-strong) !important; }
+  html[data-theme='dark'] .border-rose-800 { border-color: #6f2742 !important; }
+
+  html[data-theme='dark'] .hover\:bg-rose-50:hover { background-color: var(--surface-soft) !important; }
+  html[data-theme='dark'] .hover\:bg-gray-50:hover { background-color: var(--surface-soft) !important; }
+  html[data-theme='dark'] .hover\:text-rose-700:hover { color: var(--text-heading-strong) !important; }
+
+  html[data-theme='dark'] .bg-rose-700 { background-color: var(--text-heading-strong) !important; }
+  html[data-theme='dark'] .bg-rose-600 { background-color: var(--color-brand-rose) !important; }
+  html[data-theme='dark'] .bg-gradient-to-br,
+  html[data-theme='dark'] .from-rose-100,
+  html[data-theme='dark'] .via-pink-200,
+  html[data-theme='dark'] .to-pink-300 {
+    background-image: var(--hero-gradient) !important;
   }
 }

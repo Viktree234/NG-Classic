@@ -25,7 +25,7 @@ export default function CartPage() {
           <div key={item.id} className="flex items-center gap-4 py-5">
             <div className="w-20 h-20 rounded-xl bg-rose-50 overflow-hidden relative flex-shrink-0">
               {item.image ? (
-                <Image src={item.image} alt={item.name} fill className="object-cover" />
+                <Image src={item.image} alt={item.name} fill className="object-cover" unoptimized />
               ) : (
                 <div className="w-full h-full bg-rose-100" />
               )}

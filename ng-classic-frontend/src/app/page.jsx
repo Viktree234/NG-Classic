@@ -11,7 +11,7 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-rose-100 via-pink-200 to-pink-300 py-24 px-6 text-center">
+      <section className="hero-gradient py-24 px-6 text-center">
         <p className="text-rose-500 text-sm font-medium tracking-widest uppercase mb-3">
           Premium Hair Collection
         </p>

@@ -1,4 +1,5 @@
 import './globals.css';
+import Script from 'next/script';
 import ClientShell from '@/components/ClientShell';
 import Footer from '@/components/Footer';
 
@@ -9,8 +10,23 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body suppressHydrationWarning className="font-sans bg-white text-gray-900 min-h-screen flex flex-col">
+    <html lang="en" suppressHydrationWarning>
+      <body className="font-sans min-h-screen flex flex-col">
+        <Script id="theme-init" strategy="beforeInteractive">
+          {`
+            (() => {
+              try {
+                const key = 'ng-classic-theme';
+                const saved = window.localStorage.getItem(key);
+                const theme = saved === 'dark' || saved === 'light'
+                  ? saved
+                  : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.dataset.theme = theme;
+                document.documentElement.style.colorScheme = theme;
+              } catch (_) {}
+            })();
+          `}
+        </Script>
         <ClientShell />
         <main className="flex-1">{children}</main>
         <Footer />

@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Script from 'next/script';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { createOrder } from '@/lib/api';
@@ -12,6 +13,40 @@ export default function CheckoutPage() {
   const { user } = useAuthStore();
   const [form, setForm] = useState({ name: '', phone: '', address: '' });
   const [loading, setLoading] = useState(false);
+  const [paystackReady, setPaystackReady] = useState(false);
+  const [scriptError, setScriptError] = useState('');
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    if (window.PaystackPop) {
+      setPaystackReady(true);
+      setScriptError('');
+      return undefined;
+    }
+
+    const deadline = window.setTimeout(() => {
+      if (!window.PaystackPop) {
+        setScriptError('Paystack did not finish loading. Check your connection or any ad/content blocker, then try again.');
+      }
+    }, 8000);
+
+    const poll = window.setInterval(() => {
+      if (window.PaystackPop) {
+        setPaystackReady(true);
+        setScriptError('');
+        window.clearInterval(poll);
+        window.clearTimeout(deadline);
+      }
+    }, 250);
+
+    return () => {
+      window.clearInterval(poll);
+      window.clearTimeout(deadline);
+    };
+  }, []);
 
   if (items.length === 0) {
     return (
@@ -41,26 +76,41 @@ export default function CheckoutPage() {
       alert('Please fill in all shipping details.');
       return;
     }
-    const handler = window.PaystackPop.setup({
-      key: process.env.NEXT_PUBLIC_PAYSTACK_KEY,
-      email: user?.email ?? `${form.phone}@ngclassic.com`,
-      amount: total() * 100,
-      currency: 'NGN',
-      callback: async (res) => {
-        setLoading(true);
-        try {
-          await saveOrder(res.reference);
-          clearCart();
-          router.push('/account?order=success');
-        } catch (e) {
-          alert('Order saved but confirmation failed. Please contact us.');
-        } finally {
-          setLoading(false);
-        }
-      },
-      onClose: () => {},
-    });
-    handler.openIframe();
+    if (!process.env.NEXT_PUBLIC_PAYSTACK_KEY) {
+      alert('Missing Paystack public key. Set NEXT_PUBLIC_PAYSTACK_KEY and reload the app.');
+      return;
+    }
+    if (!paystackReady || !window.PaystackPop) {
+      alert(scriptError || 'Paystack is still loading. Please wait a moment and try again.');
+      return;
+    }
+    try {
+      const handler = window.PaystackPop.setup({
+        key: process.env.NEXT_PUBLIC_PAYSTACK_KEY,
+        email: user?.email ?? `${form.phone}@ngclassic.com`,
+        amount: Math.round(total() * 100),
+        currency: 'NGN',
+        callback: (res) => {
+          setLoading(true);
+          void (async () => {
+            try {
+              await saveOrder(res.reference);
+              clearCart();
+              router.push('/account?order=success');
+            } catch (e) {
+              alert('Order saved but confirmation failed. Please contact us.');
+            } finally {
+              setLoading(false);
+            }
+          })();
+        },
+        onClose: () => {},
+      });
+      handler.openIframe();
+    } catch (error) {
+      console.error('Paystack setup failed', error);
+      alert('Paystack could not open. Check the browser console for the exact error.');
+    }
   }
 
   function orderViaWhatsApp() {
@@ -71,7 +121,19 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <script src="https://js.paystack.co/v1/inline.js" async />
+      <Script
+        id="paystack-inline-js"
+        src="https://js.paystack.co/v1/inline.js"
+        strategy="afterInteractive"
+        onLoad={() => {
+          setPaystackReady(true);
+          setScriptError('');
+        }}
+        onError={() => {
+          setPaystackReady(false);
+          setScriptError('Unable to load Paystack. Check your connection and any content blockers, then try again.');
+        }}
+      />
       <div className="max-w-2xl mx-auto px-4 py-12">
         <h1 className="font-playfair text-3xl text-rose-900 mb-8">Checkout</h1>
 
@@ -104,12 +166,20 @@ export default function CheckoutPage() {
         {/* Payment buttons */}
         <div className="flex flex-col gap-3">
           <button onClick={payWithPaystack} disabled={loading} className="btn-primary">
-            {loading ? 'Processing...' : `Pay with Paystack — ₦${total().toLocaleString()}`}
+            {loading
+              ? 'Processing...'
+              : paystackReady
+                ? `Pay with Paystack — ₦${total().toLocaleString()}`
+                : `Pay with Paystack — ₦${total().toLocaleString()}`}
           </button>
           <button onClick={orderViaWhatsApp} className="btn-whatsapp">
             Order via WhatsApp
           </button>
         </div>
+
+        {scriptError && (
+          <p className="mt-4 text-sm text-red-600">{scriptError}</p>
+        )}
 
         {!user && (
           <p className="text-center text-sm text-gray-400 mt-6">
