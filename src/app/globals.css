@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+@theme {
+  /* Registering your custom fonts as Tailwind utilities */
+  --font-playfair: "Playfair Display", serif;
+  --font-montserrat: "Montserrat", sans-serif;
+
+  /* Optional: Mapping your brand colors for easier use */
+  --color-brand-rose: #be123c;
+  --color-brand-rose-hover: #9f1239;
+  --color-brand-rose-light: #fff1f5;
+  --color-brand-whatsapp: #22c55e;
+  --color-brand-whatsapp-hover: #16a34a;
+}
+
+@layer base {
+  :root {
+    --page-bg: #fffdfb;
+    --page-bg-secondary: #fff7f9;
+    --surface: #ffffff;
+    --surface-soft: #fff1f5;
+    --surface-soft-strong: #ffe4e6;
+    --surface-overlay: rgba(255, 255, 255, 0.7);
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #9ca3af;
+    --text-heading: #881337;
+    --text-heading-strong: #be123c;
+    --border-subtle: #fce7f3;
+    --border-default: #e5e7eb;
+    --border-strong: #d1d5db;
+    --nav-bg: rgba(255, 255, 255, 0.82);
+    --nav-shadow: 0 16px 50px rgba(190, 24, 93, 0.08);
+    --hero-gradient: linear-gradient(135deg, #ffe4e6 0%, #fbcfe8 48%, #f9a8d4 100%);
+    --footer-bg: #1e0f14;
+    --footer-heading: #f9e8ed;
+    --footer-muted: #c9a0ae;
+    --footer-border: #3d1a27;
+  }
+
+  .dark {
+    --page-bg: #0c0c10;
+    --page-bg-secondary: #13131a;
+    --surface: #17171e;
+    --surface-soft: #1e1e27;
+    --surface-soft-strong: #27272f;
+    --surface-overlay: rgba(10, 10, 15, 0.85);
+    --text-primary: #e8e4ec;
+    --text-secondary: #a09aac;
+    --text-muted: #5f5868;
+    --text-heading: #f2d9df;
+    --text-heading-strong: #e85c7a;
+    --border-subtle: #25252e;
+    --border-default: #30303c;
+    --border-strong: #3f3d4a;
+    --nav-bg: rgba(12, 12, 16, 0.82);
+    --nav-shadow: 0 16px 50px rgba(0, 0, 0, 0.45);
+    --hero-gradient: linear-gradient(135deg, #1a1018 0%, #281420 45%, #32192a 100%);
+    --footer-bg: #13131a;
+    --footer-heading: #f0e4e8;
+    --footer-muted: #a0909c;
+    --footer-border: #2a2832;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-montserrat);
+    @apply antialiased;
+    color: var(--text-primary);
+    background:
+      radial-gradient(circle at top, color-mix(in srgb, var(--text-heading-strong) 8%, transparent) 0%, transparent 50%),
+      linear-gradient(180deg, var(--page-bg) 0%, var(--page-bg-secondary) 100%);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-playfair);
+  }
+
+  a, button {
+    transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+  }
+}
+
+@layer components {
+  .site-nav {
+    background-color: var(--nav-bg);
+    border-color: var(--border-subtle);
+    box-shadow: var(--nav-shadow);
+    backdrop-filter: blur(16px);
+  }
+
+  .theme-switch {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-full border text-sm cursor-pointer;
+    background: var(--surface-soft);
+    border-color: var(--border-subtle);
+    color: var(--text-heading-strong);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+  .theme-switch:hover {
+    background-color: var(--surface-soft-strong);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  }
+  .dark .theme-switch {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+
+  .hero-gradient {
+    background: var(--hero-gradient);
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium text-sm transition-all duration-150 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed border-none cursor-pointer no-underline;
+    background-color: var(--color-brand-rose);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(190, 24, 93, 0.35);
+  }
+  .btn-primary:hover {
+    background-color: var(--color-brand-rose-hover);
+    box-shadow: 0 6px 20px rgba(190, 24, 93, 0.4);
+  }
+
+  /* Outline Button */
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium text-sm transition-all duration-150 active:scale-95 no-underline cursor-pointer;
+    background-color: transparent;
+    color: var(--text-heading-strong);
+    border: 1px solid color-mix(in srgb, var(--text-heading-strong) 50%, var(--border-default));
+  }
+  .btn-outline:hover {
+    background-color: var(--surface-soft);
+  }
+
+  /* WhatsApp Button */
+  .btn-whatsapp {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium text-sm transition-all duration-150 active:scale-95 border-none cursor-pointer no-underline;
+    background-color: var(--color-brand-whatsapp);
+    color: #ffffff;
+    box-shadow: 0 14px 30px rgba(34, 197, 94, 0.28);
+  }
+  .btn-whatsapp:hover {
+    background-color: var(--color-brand-whatsapp-hover);
+    box-shadow: 0 18px 38px rgba(34, 197, 94, 0.34);
+  }
+
+  /* Input Fields */
+  .input-field {
+    @apply w-full rounded-lg px-4 py-3 text-sm outline-none transition-all duration-150;
+    border: 1px solid var(--border-strong);
+    background-color: var(--surface);
+    color: var(--text-primary);
+  }
+  .input-field:focus {
+    @apply ring-3;
+    --tw-ring-color: color-mix(in srgb, var(--text-heading-strong) 30%, transparent);
+  }
+
+  /* Card Component */
+  .card {
+    @apply rounded-2xl overflow-hidden transition-shadow duration-200;
+    background-color: var(--surface);
+    border: 1px solid var(--border-subtle);
+  }
+  .card:hover {
+    border-color: var(--border-default);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  }
+  .dark .card:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Footer */
+  .site-footer {
+    background-color: var(--footer-bg);
+    color: var(--footer-heading);
+  }
+  .site-footer .footer-heading {
+    color: var(--footer-heading);
+  }
+  .site-footer .footer-muted {
+    color: var(--footer-muted);
+  }
+  .site-footer .footer-link {
+    color: var(--footer-muted);
+  }
+  .site-footer .footer-link:hover {
+    color: var(--footer-heading);
+  }
+  .site-footer .footer-border {
+    border-color: var(--footer-border);
+  }
+
+  /* Floating WhatsApp Button */
+  .btn-whatsapp-float {
+    @apply fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95;
+    background-color: var(--color-brand-whatsapp);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+  }
+  .btn-whatsapp-float:hover {
+    background-color: var(--color-brand-whatsapp-hover);
+  }
+}
